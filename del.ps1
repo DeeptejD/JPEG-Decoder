@@ -1,0 +1,2 @@
+rmdir '-p'
+rmdir bin
