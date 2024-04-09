@@ -93,16 +93,40 @@ const byte TEM = 0x01;
 
 struct QuantizationTable
 {
-    uint table[64] = { 0 }; // this is a 1D array instead of 2D because its more simpler
-    bool set = false; // whenw we populate a quant table we set this to true
-
+    uint table[64] = {0}; // this is a 1D array instead of 2D because its more simpler
+    bool set = false;     // whenw we populate a quant table we set this to true
 };
 
+struct ColorComponent
+{
+    byte horizontalSamplingFactor = 1;
+    byte verticalSamplingFactor = 1;
+    byte quantizationTableID = 0;
+    bool used = false; // keeps a check whether this color component is used in the img or not
+};
 struct Header
 {
     QuantizationTable quantizationTables[4]; // we will mostly use the first 2
     // this flag indicates if the file is valid or not
+
+    byte frameType = 0;
+    uint height = 0;
+    uint width = 0;
+    byte numComponents = 0;
+
+    ColorComponent colorComponents[3];
+
     bool valid = true; // set to false when we encounter something illegal in the file
 };
+
+const byte zigZagMap[] = {
+    0, 1, 8, 16, 9, 2, 3, 10,
+    17, 24, 32, 25, 18, 11, 4, 5,
+    12, 19, 26, 33, 40, 48, 41, 34,
+    27, 20, 13, 6, 7, 14, 21, 28,
+    35, 42, 49, 56, 57, 50, 43, 36,
+    29, 22, 15, 23, 30, 37, 44, 51,
+    58, 59, 52, 45, 38, 31, 39, 46,
+    53, 60, 61, 54, 47, 55, 62, 63};
 
 #endif

@@ -3,6 +3,99 @@
 
 using namespace std;
 
+void readStartOfFrame(ifstream &inFile, Header *const header)
+{
+    cout << "Readinf SOF marker\n";
+    if (header->numComponents != 0)
+    {
+        cout << "Error: Multiple SOFs deetcted\n";
+        header->valid = false;
+        return;
+    }
+
+    uint length = (inFile.get() << 8) + inFile.get();
+    byte precision = inFile.get();
+
+    if (precision != 8)
+    {
+        cout << "Error: Invalid precision: " << (uint)precision << endl;
+        header->valid = false;
+        return;
+    }
+    header->height = (inFile.get() << 8) + inFile.get();
+    header->width = (inFile.get() << 8) + inFile.get();
+    if (header->height == 0 || header->width == 0)
+    {
+        cout << "Error: Invalid dimensions\n";
+        header->valid = false;
+        return;
+    }
+    header->numComponents = inFile.get();
+    if (header->numComponents == 4)
+    {
+        cout << "Error: CMYK color mode not supported\n";
+        header->valid = false;
+        return;
+    }
+
+    if (header->numComponents == 0)
+    {
+        cout << "Error: number of components cant be zero\n";
+        header->valid = false;
+        return;
+    }
+
+    for (uint i = 0; i < header->numComponents; i++)
+    {
+        byte componentID = inFile.get();
+        if (componentID == 4 || componentID == 5)
+        {
+            // for YIQ not supported
+            cout << "Error: YIQ color mode not supported\n";
+            header->valid = false;
+            return;
+        }
+        if (componentID == 0 || componentID > 3)
+        {
+            cout << "Error: Invalid component ID: " << (uint)componentID << endl;
+            header->valid = false;
+            return;
+        }
+        ColorComponent *component = &header->colorComponents[componentID - 1];
+        if (component->used)
+        {
+            // same value more than once
+            cout << "Error: Duplicate color component ID\n";
+            header->valid = false;
+            return;
+        }
+        component->used = true;
+        byte samplingFactor = inFile.get();
+
+        // Sampling factor is also split into upper and lower nibble
+        component->horizontalSamplingFactor = samplingFactor >> 4;
+        component->verticalSamplingFactor = samplingFactor & 0x0F;
+        if (component->horizontalSamplingFactor != 1 || component->verticalSamplingFactor != 1)
+        {
+            cout << "Error: Sampling factors not supported\n";
+            header->valid = false;
+            return;
+        }
+        component->quantizationTableID = inFile.get();
+        if (component->quantizationTableID > 3)
+        {
+            cout << "Error: Invalid quantization table ID in frame components\n";
+            header->valid = false;
+            return;
+        }
+    }
+    if (length - 8 - (3 * header->numComponents) != 0)
+    {
+        cout << "Error: SOF Invalid\n";
+        header->valid = false;
+    }
+}
+
 void readQuantizationTable(ifstream &inFile, Header *const header)
 {
     cout << "Reading DQT markers\n";
@@ -28,7 +121,7 @@ void readQuantizationTable(ifstream &inFile, Header *const header)
             // this is a 16 bit quantization table
             for (uint i = 0; i < 64; i++)
             {
-                header->quantizationTables[tableID].table[i] = (inFile.get() << 8) + inFile.get();
+                header->quantizationTables[tableID].table[zigZagMap[i]] = (inFile.get() << 8) + inFile.get();
             }
             length -= 128; // 64 values * 16 bit
         }
@@ -37,7 +130,7 @@ void readQuantizationTable(ifstream &inFile, Header *const header)
             // 8 bit quantization table
             for (uint i = 0; i < 64; i++)
             {
-                header->quantizationTables[tableID].table[i] = inFile.get();
+                header->quantizationTables[tableID].table[zigZagMap[i]] = inFile.get();
             }
             length -= 64; // 64 values * 8 bit
         }
@@ -114,10 +207,17 @@ Header *readJPG(const string &filename) // takes in the filename as a constant r
             return header;
         }
 
-        if (current == DQT)
+        // READING START OF FRAME
+        if (current == SOF0)
+        {
+            header->frameType = SOF0;
+            readStartOfFrame(inFile, header);
+            break;
+        }
+        // READING QUANTUZATION TABLES
+        else if (current == DQT)
         {
             readQuantizationTable(inFile, header);
-            break;
         }
 
         else if (current >= APP0 && current <= APP15)
@@ -153,6 +253,18 @@ void printHeader(const Header *const header)
             }
             cout << endl;
         }
+    }
+    cout << "\nSOF --";
+    cout << "Frame type: 0x" << hex << (uint)header->frameType << dec << "\n";
+    cout << "Height: " << header->height << "\n";
+    cout << "Width: " << header->width << "\n";
+    cout << "Color components: \n";
+    for (uint i = 0; i < header->numComponents; i++)
+    {
+        cout << "\nComponent ID: " << (i + 1) << "\n";
+        cout << "Horizontal Sampling Factor: " << (uint)header->colorComponents[i].horizontalSamplingFactor << "\n";
+        cout << "Vertical Sampling Factor: " << (uint)header->colorComponents[i].verticalSamplingFactor << "\n";
+        cout << "Quantization Table ID: " << (uint)header->colorComponents[i].quantizationTableID << "\n";
     }
 }
 
