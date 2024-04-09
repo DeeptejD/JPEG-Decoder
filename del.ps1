@@ -1,2 +1,0 @@
-rmdir '-p'
-rmdir bin
