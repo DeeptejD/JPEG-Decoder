@@ -1,6 +1,7 @@
 #ifndef JPG_H
 #define JPG_H
 
+// this is just renaming stuff
 typedef unsigned char byte;
 typedef unsigned int uint;
 
@@ -90,8 +91,16 @@ const byte JPG13 = 0xFD;
 const byte COM = 0xFE;
 const byte TEM = 0x01;
 
+struct QuantizationTable
+{
+    uint table[64] = { 0 }; // this is a 1D array instead of 2D because its more simpler
+    bool set = false; // whenw we populate a quant table we set this to true
+
+};
+
 struct Header
 {
+    QuantizationTable quantizationTables[4]; // we will mostly use the first 2
     // this flag indicates if the file is valid or not
     bool valid = true; // set to false when we encounter something illegal in the file
 };
