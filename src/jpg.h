@@ -93,6 +93,12 @@ const byte TEM = 0x01;
 
 struct QuantizationTable
 {
+    // made a 1D array as single iterator can be used as well as 2 indices
+    // use nested:
+    // for(i: 1 -> 8)
+    //     for(j: 1 -> 8)
+    //          table[y * 8 + x] to access table[x][y]
+
     uint table[64] = {0}; // this is a 1D array instead of 2D because its more simpler
     bool set = false;     // whenw we populate a quant table we set this to true
 };
@@ -104,6 +110,7 @@ struct ColorComponent
     byte quantizationTableID = 0;
     bool used = false; // keeps a check whether this color component is used in the img or not
 };
+
 struct Header
 {
     QuantizationTable quantizationTables[4]; // we will mostly use the first 2
