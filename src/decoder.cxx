@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "decoder_functions.cxx"
-#include "jpg.h"
+// #include "jpg.h"
 
 int main(int argc, char **argv)
 {
