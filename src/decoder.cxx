@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include "decoder_functions.cxx"
-// #include "jpg.h"
+#include "bitmap_output.cxx"
+#include "jpg.h"
 
 int main(int argc, char **argv)
 {
@@ -31,6 +32,19 @@ int main(int argc, char **argv)
 
         // decode Huffman data
 
+        MCU *mcus = blackBox(header);
+        if (mcus == nullptr)
+        {
+            delete header;
+            continue;
+        }
+
+        // write bmp file
+        const std::size_t pos = filename.find_last_of('.');
+        const std::string outFilename = (pos == std::string::npos) ? (filename + ".bmp") : (filename.substr(0, pos) + ".bmp");
+        writeBMP(header, mcus, outFilename);
+
+        delete[] mcus;
         delete header;
     }
 

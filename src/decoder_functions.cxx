@@ -31,6 +31,13 @@ void readStartOfScan(std::ifstream &inFile, Header *const header);
 // reads a comment
 void readComment(std::ifstream &inFile, Header *const header);
 
+// temporarily assume that the 4 major decoding steps are taken care of
+// this fxn returns pointer to start of the mcu array created
+MCU *blackBox(const Header *const header)
+{
+}
+
+
 // Definitions
 
 void readStartOfFrame(std::ifstream &inFile, Header *const header)
@@ -309,7 +316,8 @@ void readRestartInterval(std::ifstream &inFile, Header *const header)
     std::cout << "Reading DRI marker...\n";
     uint length = (inFile.get() << 8) + inFile.get();
 
-    header->restartInterval = (inFile.get() << 8) + inFile.get(); // setting the restart interval to the next 16bit integer
+    // setting the restart interval to the next 16bit integer
+    header->restartInterval = (inFile.get() << 8) + inFile.get();
 
     // checking if the marker is valid
     if (length - 4 != 0) // subtracting 4 from the length since we read 4 bytes
