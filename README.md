@@ -47,6 +47,27 @@ This is followed by the Huffman Coded BitSteam
 ```
 
 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+### Bit Map (BMP) Header [For the bmp output]
+```
+First Half Of The Header [14B]:
+"BM"           - A start notation (2B)
+size           - Header Size (4B)
+00 00 00 00    - 4 unused bytes (4B)
+00 00 00 1A    - Pixel Array Offset from start of the file (4B) [will always be the said num., because of the header options we're using]
 
+Size Break-up = 
+14 (first 1/2)
++ 12 (second 1/2)
++ H*W*3 (height * width * numOfColorChannels)
++ P * H (padding bytes * num of rows (ie. height)
+
+Second Half Of The Header (DIB Header) [12B]:
+12             - DIB Header Size (4B) [always 12]
+width          - image width (2B)
+height         - image height (2B)
+1              - number of planes (2B) [must be 1]
+24             - number of bits per pixel (2B) [8 (bits per color channel 0->255) * 3 (num of color components)]
+```
 
