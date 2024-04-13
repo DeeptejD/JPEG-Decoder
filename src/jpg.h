@@ -1,6 +1,5 @@
 #ifndef JPG_H
 #define JPG_H
-#include <vector>
 
 // this is just renaming stuff
 typedef unsigned char byte;
@@ -94,12 +93,6 @@ const byte TEM = 0x01;
 
 struct QuantizationTable
 {
-    // made a 1D array as single iterator can be used as well as 2 indices
-    // use nested:
-    // for(i: 1 -> 8)
-    //     for(j: 1 -> 8)
-    //          table[y * 8 + x] to access table[x][y]
-
     uint table[64] = {0}; // this is a 1D array instead of 2D because its more simpler
     bool set = false;     // whenw we populate a quant table we set this to true
 };
@@ -109,86 +102,21 @@ struct ColorComponent
     byte horizontalSamplingFactor = 1;
     byte verticalSamplingFactor = 1;
     byte quantizationTableID = 0;
-
-    byte HuffmanDCTableID = 0;
-    byte HuffmanACTableID = 0;
-
     bool used = false; // keeps a check whether this color component is used in the img or not
 };
-
-struct HuffmanTable
-{
-    byte offset[17] = {0};
-    byte symbols[162] = {0};
-    uint codes[162] = {0}; // same as the size of the symbols array (but init with uint because codes can be longer than 8bits)
-    bool set = false;
-};
-
 struct Header
 {
     QuantizationTable quantizationTables[4]; // we will mostly use the first 2
-    HuffmanTable huffmanDCTables[4];
-    HuffmanTable huffmanACTables[4];
-
     // this flag indicates if the file is valid or not
 
     byte frameType = 0;
     uint height = 0;
     uint width = 0;
     byte numComponents = 0;
-    bool zeroBased = false; // This is to support JPEG's that have their Component ID's starting from zero instead of 1. (gorilla.jpg)
-
-    byte startOfSelection = 0;
-    byte endOfSelection = 63;
-    byte successiveApproximationHigh = 0;
-    byte successiveApproximationLow = 0;
-
-    uint restartInterval = 0; // this means never restart (or reset the value of DC coefficent to zero) Context: DRI Marker
 
     ColorComponent colorComponents[3];
 
-    // stores the huffman data
-    std::vector<byte> huffmanData;
-
     bool valid = true; // set to false when we encounter something illegal in the file
-};
-
-struct MCU
-{
-    // why use union? (to give same addr. in memory different names)
-    // sometimes a mcu might be representing rgb values instead of ycbcr
-    // thus union so that the same array can be called by 2 different names
-    union
-    {
-        int y[64] = {0};
-        int r[64];
-    };
-    union
-    {
-        int cb[64] = {0};
-        int g[64];
-    };
-    union
-    {
-        int cr[64] = {0};
-        int b[64];
-    };
-
-    // we defined this since we wanted to access indiv components of the MCU in huffman_functions.cxx/decodeHuffmanTable function
-    int *operator[](uint i)
-    {
-        switch (i)
-        {
-        case 0:
-            return y;
-        case 1:
-            return cb;
-        case 2:
-            return cr;
-        default:
-            return nullptr;
-        }
-    }
 };
 
 const byte zigZagMap[] = {
