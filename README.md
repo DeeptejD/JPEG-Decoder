@@ -22,7 +22,7 @@ XXXX    - Restart Interval (2B)
 FFC4    - Marker (2B)
 XXXX    - Length (2B)
 XX      - Table Info (1B)
-[16]    - No of codes of each length
+[16]    - No of codes of each length [This is very important to generate the codes]
 [X]     - Symbols (Sum of the prev 16)
 ```
 Structure of the Table Info symbol (1byte)
@@ -45,7 +45,6 @@ XX      - Successive Approximation (1B) [Relevant w.r.t. Progressive JPEGs, must
 ---
 This is followed by the Huffman Coded BitSteam
 ```
-
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
@@ -70,4 +69,11 @@ height         - image height (2B)
 1              - number of planes (2B) [must be 1]
 24             - number of bits per pixel (2B) [8 (bits per color channel 0->255) * 3 (num of color components)]
 ```
+
+## Huffman Coding
+### How do we figure out huffman codes from frequency of huffman codes of a particular length given in the DHT marker?
+We start with the code ```0``` for codes of length 1 and at each step we do the following
+* Save current symbol (```0``` in the case of codes of length 1) and add 1 to it
+* For codes of length 2 we start with ```00``` and continue the same, adding a zero each time we consider a code of a greater length
+
 

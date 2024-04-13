@@ -2,6 +2,7 @@
 #include <fstream>
 #include "decoder_functions.cxx"
 #include "bitmap_output.cxx"
+#include "huffman_functions.cxx"
 #include "jpg.h"
 
 int main(int argc, char **argv)
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
 
         // decode Huffman data
 
-        MCU *mcus = blackBox(header);
+        MCU *mcus = decodeHuffmanData(header);
         if (mcus == nullptr)
         {
             delete header;
