@@ -214,7 +214,7 @@ MCU *decodeHuffmanData(Header *const header)
 {
     const uint mcuHeight = (header->height + 7) / 8;
     const uint mcuWidth = (header->width + 7) / 8;
-    MCU *mcus = new (std::nothrow) MCU(mcuHeight * mcuWidth);
+    MCU *mcus = new (std::nothrow) MCU[mcuHeight * mcuWidth];
 
     if (mcus == nullptr)
     {
