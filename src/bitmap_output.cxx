@@ -62,6 +62,7 @@ void writeBMP(const Header *const header, const MCU *const mcus, const std::stri
             outFile.put(mcus[mcuIndex].r[pixelIndex]);
         }
 
+        // writing padding bytes
         for (uint i = 0; i < paddingSize; i++)
         {
             outFile.put(0);

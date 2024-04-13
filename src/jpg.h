@@ -103,6 +103,7 @@ struct QuantizationTable
     uint table[64] = {0}; // this is a 1D array instead of 2D because its more simpler
     bool set = false;     // whenw we populate a quant table we set this to true
 };
+
 struct ColorComponent
 {
     byte horizontalSamplingFactor = 1;
@@ -119,8 +120,10 @@ struct HuffmanTable
 {
     byte offset[17] = {0};
     byte symbols[162] = {0};
+    uint codes[162] = {0}; // same as the size of the symbols array (but init with uint because codes can be longer than 8bits)
     bool set = false;
 };
+
 struct Header
 {
     QuantizationTable quantizationTables[4]; // we will mostly use the first 2
@@ -155,7 +158,6 @@ struct MCU
     // why use union? (to give same addr. in memory different names)
     // sometimes a mcu might be representing rgb values instead of ycbcr
     // thus union so that the same array can be called by 2 different names
-
     union
     {
         int y[64] = {0};
@@ -171,6 +173,22 @@ struct MCU
         int cr[64] = {0};
         int b[64];
     };
+
+    // we defined this since we wanted to access indiv components of the MCU in huffman_functions.cxx/decodeHuffmanTable function
+    int *operator[](uint i)
+    {
+        switch (i)
+        {
+        case 0:
+            return y;
+        case 1:
+            return cb;
+        case 2:
+            return cr;
+        default:
+            return nullptr;
+        }
+    }
 };
 
 const byte zigZagMap[] = {

@@ -33,10 +33,9 @@ void readComment(std::ifstream &inFile, Header *const header);
 
 // temporarily assume that the 4 major decoding steps are taken care of
 // this fxn returns pointer to start of the mcu array created
-MCU *blackBox(const Header *const header)
-{
-}
-
+// MCU *blackBox(const Header *const header)
+// {
+// }
 
 // Definitions
 
