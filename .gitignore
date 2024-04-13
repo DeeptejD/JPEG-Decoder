@@ -1,3 +1,6 @@
 /tests
 src/a.exe
 src/output
+./**/*.exe
+src/.vscode
+.vscode
