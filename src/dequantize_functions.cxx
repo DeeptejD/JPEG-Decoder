@@ -19,7 +19,7 @@ void dequantize(const Header *const header, MCU *const mcus)
     const uint mcuHeight = (header->height + 7) / 8;
     const uint mcuWidth = (header->width + 7) / 8;
 
-    for (uint i = 0; i, mcuHeight * mcuWidth; i++)
+    for (uint i = 0; i < mcuHeight * mcuWidth; i++)
         for (uint j = 0; j < header->numComponents; j++)
             dequantizeMCUComponent(header->quantizationTables[header->colorComponents[j].quantizationTableID], mcus[i][j]);
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "decoder_functions.cxx"
+#include "inverseDCT_functions.cxx"
 #include "dequantize_functions.cxx"
 #include "bitmap_output.cxx"
 #include "huffman_functions.cxx"
@@ -41,7 +42,10 @@ int main(int argc, char **argv)
         }
 
         // dequantize MCU coefficients
+        dequantize(header, mcus);
 
+        // inverse DCT on MCUs
+        inverseDCT(header, mcus);
 
         // write bmp file
         const std::size_t pos = filename.find_last_of('.');
