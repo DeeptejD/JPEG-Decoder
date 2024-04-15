@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "decoder_functions.cxx"
+#include "dequantize_functions.cxx"
 #include "bitmap_output.cxx"
 #include "huffman_functions.cxx"
 #include "jpg.h"
@@ -32,13 +33,15 @@ int main(int argc, char **argv)
         printHeader(header);
 
         // decode Huffman data
-
         MCU *mcus = decodeHuffmanData(header);
         if (mcus == nullptr)
         {
             delete header;
             continue;
         }
+
+        // dequantize MCU coefficients
+
 
         // write bmp file
         const std::size_t pos = filename.find_last_of('.');
