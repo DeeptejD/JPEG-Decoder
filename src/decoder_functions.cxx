@@ -31,12 +31,6 @@ void readStartOfScan(std::ifstream &inFile, Header *const header);
 // reads a comment
 void readComment(std::ifstream &inFile, Header *const header);
 
-// temporarily assume that the 4 major decoding steps are taken care of
-// this fxn returns pointer to start of the mcu array created
-// MCU *blackBox(const Header *const header)
-// {
-// }
-
 // Definitions
 
 void readStartOfFrame(std::ifstream &inFile, Header *const header)
@@ -200,7 +194,7 @@ void printHeader(const Header *const header)
                 std::cout << (j + 1) << ": ";
                 for (uint k = header->huffmanDCTables[i].offset[j]; k < header->huffmanDCTables[i].offset[j + 1]; k++)
                 {
-                    std::cout << std::hex << (uint)header->huffmanDCTables[i].symbols[k] << " ";
+                    std::cout << std::hex << (uint)header->huffmanDCTables[i].symbols[k] << std::dec << ' ';
                 }
                 std::cout << "\n";
             }
@@ -220,7 +214,7 @@ void printHeader(const Header *const header)
                 std::cout << (j + 1) << ": ";
                 for (uint k = header->huffmanACTables[i].offset[j]; k < header->huffmanACTables[i].offset[j + 1]; k++)
                 {
-                    std::cout << std::hex << (uint)header->huffmanACTables[i].symbols[k] << " ";
+                    std::cout << std::hex << (uint)header->huffmanACTables[i].symbols[k] << std::dec << ' ';
                 }
                 std::cout << "\n";
             }
@@ -239,6 +233,9 @@ void printHeader(const Header *const header)
         std::cout << "Huffman AC Table ID:\t" << (uint)header->colorComponents[i].HuffmanACTableID << '\n';
     }
     std ::cout << "Length of Huffman Data:\t" << header->huffmanData.size() << '\n';
+
+    std::cout << "DRI=============\n";
+    std::cout << "Restart Interval: " << header->restartInterval << '\n';
 }
 
 void readAPPN(std::ifstream &inFile, Header *const header)

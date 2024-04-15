@@ -18,7 +18,7 @@ void generateCodes(HuffmanTable &hTable);
 void generateCodes(HuffmanTable &hTable)
 {
     uint code = 0; // 1 bit long code
-    for (uint i = 0; i < 15; i++)
+    for (uint i = 0; i < 16; i++)
     {
         for (uint j = hTable.offset[i]; j < hTable.offset[i + 1]; j++)
         {
@@ -38,7 +38,8 @@ private:
     const std::vector<byte> &data;
 
 public:
-    BitReader(const std::vector<byte> &d) : data(d) // using initalizer list to init d since we cant init a const in the body of a constructor
+    BitReader(const std::vector<byte> &d)
+        : data(d) // using initalizer list to init d since we cant init a const in the body of a constructor
     {
     }
 
@@ -49,7 +50,7 @@ public:
             return -1;
         int bit = (data[nextByte] >> (7 - nextBit)) & 1; // we do 7 - to maintain a order of MSB to LSB of the read bits
         nextBit += 1;
-        if (nextBit == 0)
+        if (nextBit == 8)
         {
             nextBit = 0;
             nextByte += 1;
@@ -97,12 +98,15 @@ byte getNextSymbol(BitReader &b, const HuffmanTable &hTable)
     {
         int bit = b.readBit();
         if (bit == -1)
+        {
             return -1; // since the return type is byte, which is char (0-255), when we return -1 it gets forced into the valid range and returns 255 instead
+        }
         currentCode = (currentCode << 1) | bit;
         for (uint j = hTable.offset[i]; j < hTable.offset[i + 1]; j++)
         {
             // j's are all the indices of all the codes of same length
-            return hTable.symbols[j];
+            if (currentCode == hTable.codes[j])
+                return hTable.symbols[j];
         }
     }
     return -1; // after reading 16 bits we never found a match
@@ -116,7 +120,7 @@ bool decodeMCUComponent(BitReader &b, int *const component, int &previousDC, con
     byte length = getNextSymbol(b, dcTable);
     if (length == (byte)-1)
     {
-        std::cout << "Error: Invalid DC value\n";
+        std::cout << "Error: Invalid DC value?\n";
         return false;
     }
     if (length > 11) // we know that DC coeff shud never have a length > 11
@@ -165,7 +169,7 @@ bool decodeMCUComponent(BitReader &b, int *const component, int &previousDC, con
 
         // otherwise, read next component coefficient
         byte numZeroes = symbol >> 4;     // upper nibble
-        byte coeffLength = symbol & 0X0F; // lower nibble
+        byte coeffLength = symbol & 0x0F; // lower nibble
         coeff = 0;
 
         // symbol 0x0F means skip 16 0's
@@ -177,7 +181,7 @@ bool decodeMCUComponent(BitReader &b, int *const component, int &previousDC, con
         // smol loop •⩊•
         if (i + numZeroes >= 64)
         {
-            std::cout << "Error >.<!: Zero run-length exceeded MCU\n";
+            std::cout << "Error: Zero run-length exceeded MCU\n";
             return false;
         }
         for (uint j = 0; j < numZeroes; i++, j++)
@@ -208,17 +212,20 @@ bool decodeMCUComponent(BitReader &b, int *const component, int &previousDC, con
             i += 1;
         }
     }
+
+    return true;
 }
 
 MCU *decodeHuffmanData(Header *const header)
 {
     const uint mcuHeight = (header->height + 7) / 8;
     const uint mcuWidth = (header->width + 7) / 8;
-    MCU *mcus = new (std::nothrow) MCU[ mcuHeight * mcuWidth ];
+    MCU *mcus = new (std::nothrow) MCU[mcuHeight * mcuWidth];
 
     if (mcus == nullptr)
     {
-        std::cout << "Error - Memory error\n";
+        std::cout << "Error: Memory error\n";
+        return nullptr;
     }
 
     for (uint i = 0; i < 4; i++)
@@ -229,7 +236,7 @@ MCU *decodeHuffmanData(Header *const header)
         }
         if (header->huffmanACTables[i].set)
         {
-            generateCodes(header->huffmanDCTables[i]);
+            generateCodes(header->huffmanACTables[i]);
         }
     }
 
@@ -240,7 +247,7 @@ MCU *decodeHuffmanData(Header *const header)
     for (uint i = 0; i < mcuHeight * mcuWidth; i++) // loops for every mcu
     {
         // at the strt of an MCU
-        if (header->restartInterval != 0 && i & header->restartInterval == 0) // its time to restart
+        if (header->restartInterval != 0 && i % header->restartInterval == 0) // its time to restart
         {
             // at the end of the restart interval we have to reset the previous DCs
             previousDCs[0] = 0;
@@ -256,7 +263,7 @@ MCU *decodeHuffmanData(Header *const header)
             if (!decodeMCUComponent(b,
                                     mcus[i][j],
                                     previousDCs[j],
-                                    header->huffmanDCTables[header->colorComponents[i].HuffmanDCTableID],
+                                    header->huffmanDCTables[header->colorComponents[j].HuffmanDCTableID],
                                     header->huffmanACTables[header->colorComponents[j].HuffmanACTableID])) // we only realistically want to pass the current component
             {
                 delete[] mcus;
