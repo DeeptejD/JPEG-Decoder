@@ -5,6 +5,7 @@
 #include "dequantize_functions.cxx"
 #include "bitmap_output.cxx"
 #include "huffman_functions.cxx"
+#include "color_conversion_functions.cxx"
 #include "jpg.h"
 
 int main(int argc, char **argv)
@@ -46,6 +47,9 @@ int main(int argc, char **argv)
 
         // inverse DCT on MCUs
         inverseDCT(header, mcus);
+
+        // color conversion
+        YCbCrToRGB(header, mcus);
 
         // write bmp file
         const std::size_t pos = filename.find_last_of('.');
