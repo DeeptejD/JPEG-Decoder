@@ -11,28 +11,33 @@ void inverseDCTComponent(const float *const idctMap, int *const component);
 
 void inverseDCTComponent(const float *const idctMap, int *const component)
 {
-    int result[64] = {0};
-    for (uint y = 0; y < 8; y++)
+    float result[64] = {0};
+    // 1D DCT on all the cols
+    for (uint i = 0; i < 8; i++)
     {
-        for (uint x = 0; x < 8; x++)
+        for (uint y = 0; y < 8; y++)
         {
-            float sum = 0.0;
-            // i was changed to v and j was changed to u to stick with the convention
+            float sum = 0.0f;
             for (uint v = 0; v < 8; v++)
             {
-                for (uint u = 0; u < 8; u++)
-                {
-                    sum += component[v * 8 + u] *
-                           idctMap[u * 8 + x] *
-                           idctMap[v * 8 + y];
-                }
+                sum += component[v * 8 + i] * idctMap[v * 8 + y];
             }
-            result[y * 8 + x] = (int)sum;
+            result[y * 8 + i] = sum;
         }
     }
 
-    for (uint i = 0; i < 64; i++)
-        component[i] = result[i];
+    for (uint i = 0; i < 8; i++)
+    {
+        for (uint x = 0; x < 8; x++)
+        {
+            float sum = 0.0f;
+            for (uint u = 0; u < 8; u++)
+            {
+                sum += result[i * 8 + u] * idctMap[u * 8 + x];
+            }
+            component[i * 8 + x] = (int)sum;
+        }
+    }
 }
 
 void inverseDCT(const Header *const header, MCU *const mcus)
