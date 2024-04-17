@@ -10,6 +10,7 @@
 Understanding a JPEG encoder. It consists of 4 major steps:
 1. RGB -> YCbCr
 - YCbCr color space separates luminance (Y) from chrominance (Cb and Cr), allowing for more efficient compression. Human vision is more sensitive to changes in brightness (luminance) than to changes in color (chrominance). By subsampling the chrominance channels (Cb and Cr), JPEG encoders can reduce the data needed to represent the image while preserving visual quality.
+- The image is broken up into 8x8 blocks of pixels called MCUs (minimum coded units). Since we have 3 channels (Y, Cr, Cb), we will have 3 sets of MCUs. These MCUs can be treated as individual MCUs and further steps can be performed on them.
 
 2. Discrete Cosine Transform (DCT)
 - Converts image from spatial domain -> frequency domain
