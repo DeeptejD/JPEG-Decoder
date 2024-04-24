@@ -64,6 +64,7 @@ Lower Nibble - Table ID (0, 1, 2, 3)
 
 ### Start Of Frame Marker (SOF)
 - The SOF marker is followed by parameters that describe various aspects of the image, such as its dimensions, color space, and component information.
+- Sampling Factor: Refers to the ratio by which the image is downsampled in the horizontal and vertical dimensions for each color component during the compression process. (using for color and brightness in YCrCb) 
 ```
 FFC0 -> FFCF (excludes C4, C8 and CC => 13 markers)
 
