@@ -133,10 +133,10 @@ struct Header
 
     // this flag indicates if the file is valid or not
 
-    byte frameType = 0;
-    uint height = 0;
+    byte frameType = 0;     // 0 is baseline (which we support)
+    uint height = 0;        
     uint width = 0;
-    byte numComponents = 0;
+    byte numComponents = 0; // 1(grayscale) or 3(rgb) 
     bool zeroBased = false; // This is to support JPEG's that have their Component ID's starting from zero instead of 1. (gorilla.jpg)
 
     byte startOfSelection = 0;
