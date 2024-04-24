@@ -119,15 +119,17 @@ struct ColorComponent
 
 struct HuffmanTable
 {
-    byte offset[17] = {0};
+    byte offset[17] = {0}; // there are 16(len 1 to 16) groups, the next grp offset suggests the ending of the current and so we have one extra so that the last one can also have an ending
     byte symbols[162] = {0};
     uint codes[162] = {0}; // same as the size of the symbols array (but init with uint because codes can be longer than 8bits)
-    bool set = false;
+    bool set = false;      
 };
 
 struct Header
 {
-    QuantizationTable quantizationTables[4]; // we will mostly use the first 2
+    QuantizationTable quantizationTables[4]; // we will mostly use the first 2 (1 for lum and 1 for croma)
+
+    // id can be between 0->3 => 4 HT of each type are possible
     HuffmanTable huffmanDCTables[4];
     HuffmanTable huffmanACTables[4];
 
