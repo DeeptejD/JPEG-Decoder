@@ -94,17 +94,26 @@ XXXX    - Restart Interval (2B)
 ```
 
 ### Define Huffman Tables Marker (DHT)
+- Specifies the Huffman coding tables used for encoding the DC and AC coefficients after quantization. Huffman coding is a lossless compression technique commonly used in JPEG compression to further compress the quantized coefficients obtained from the Discrete Cosine Transform (DCT).
+- Huffman Symbols (1B values): Upper Nibble: # of 0s preceeding current coeff. (0 -> 15); Lower Nibble: Length of current coeff. (bits (from 1 -> 10b only))
+  => 16 * 10 = 160 symbols are possible (There are 2 special ones included: F0 -> skip 16 0s ; 00 -> stop(everything further is 0))
+  => 162 symbols
+- DC coeffs. are never preceeded by 0s (as they are the first symbol) => they get different huffman tables
+  => upper nibble: always 0 ; lower nibble: 0 -> 11
+  => 12 symbols
 ```
 FFC4    - Marker (2B)
 XXXX    - Length (2B)
+Until Length is complete:
 XX      - Table Info (1B)
-[16]    - No of codes of each length [This is very important to generate the codes]
+[16]    - No of codes of each length (16B)
 [X]     - Symbols (Sum of the prev 16)
 ```
-Structure of the Table Info symbol (1byte)
+Structure of the Table Info symbol (1B)
 | Upper Nibble                                                        | Lower Nibble                                                     |
 |---------------------------------------------------------------------|------------------------------------------------------------------|
 | Boolean Value Either 0/1  0 - AC Huffman Table 1 - DC Huffman Table | Table ID   Values from 0-3 (Not shared between AC and DC tables) |
+
 
 ### Start of Scan Marker (SoS)
 ```
