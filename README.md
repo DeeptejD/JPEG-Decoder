@@ -52,13 +52,14 @@ LENGTH = length of marker content including the 2B for LENGTH.
 
 ### Define Quantization Table Marker (DQT)
 - Specifies the quantization tables used for quantizing the frequency coefficients. JPEG allows for up to four quantization tables to be defined, though in practice, many JPEG images use only one or two tables. Each quantization table contains 64 entries, corresponding to the 64 frequency coefficients in an 8x8 block (MCU).
+- The values aren't stored from left to right, top to bottom fashion. Instead, they are stored in zigzag fashion (we've defined a zigzag matrix for this translation) 
 ```
 FFDB    - Marker (2B)
 XXXX    - Length (2B)
 Table Info       (1B)
 Upper Nibble - 0/1 -> Tells if Quantization values are 8b or 16b values
 Lower Nibble - Table ID (0, 1, 2, 3) 
-[followed by either 64B or 128B based on lower nibble of table info] - Table Values
+[followed by either 64B or 128B based on the lower nibble of table info] - Table Values
 ```
 
 ### Define Restart Interval Marker (DRI)
