@@ -32,14 +32,27 @@ Understanding a JPEG encoder. It consists of 4 major steps:
 ## Markers
 
 ### Start Of Image Marker (SOI)
-Every JPEG file starts with SOI marker.
+- Every JPEG file starts with SOI marker.
 ```
 FFD8    - SOI Marker (2B)
 ```
 
+### Application Marker (APPN)
+- Contains application-specific data eg. data of the encoding software (like photoshop etc.)
+- These markers allow for extending the JPEG format to accommodate various types of metadata and application-specific data without affecting the image's visual representation.
+- 16 such markers exist. 
+```
+FFE0 -> FFEF (16 Markers)
+
+Marker Format:
+FFEN LENGTH[2B] (Marker followed by 2B size in Bytes of Marker content)
+LENGTH = length of marker content including the 2B for LENGTH.
+
+```
+
 ### Define Restart Interval Marker (DRI)
-The DC coefficient (which is essentially the first coefficient in an MCU) is dependent on the DC coefficient of the previous MCU (except the first MCU). What this essentially means is that, to calculate the actual MCU of say the second MCU, we add its value with the previous MCU's DC coefficient. 
-DRI helps us define the interval of MCUs after which we reset the DC coefficient to zero.
+- The DC coefficient (which is essentially the first coefficient in an MCU) is dependent on the DC coefficient of the previous MCU (except the first MCU). What this essentially means is that, to calculate the actual MCU of say the second MCU, we add its value with the previous MCU's DC coefficient. 
+- DRI helps us define the interval of MCUs after which we reset the DC coefficient to zero.
 ```
 FFDD    - Marker (2B)
 0004    - Length (2B)
