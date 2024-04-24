@@ -84,8 +84,9 @@ XX      - Quantization Table ID(the one that is used on this component) (1B)
 ```
 
 ### Define Restart Interval Marker (DRI)
-- The DC coefficient (which is essentially the first coefficient in an MCU) is dependent on the DC coefficient of the previous MCU (except the first MCU). What this essentially means is that, to calculate the actual MCU of say the second MCU, we add its value with the previous MCU's DC coefficient. 
-- DRI helps us define the interval of MCUs after which we reset the DC coefficient to zero.
+- The DC coefficient (which is essentially the first coefficient in an MCU (at position 0)) is dependent on the DC coefficient of the previous MCU (except the first MCU). What this essentially means is that, to calculate the actual DC coeff of say the second MCU, we add its value with the previous MCU's DC coefficient.
+- AC coefficients (all other coeffs. from 1 to 63)
+- DRI helps us define the interval of MCUs after which we add nothing to the current DC coeff (then proceed normally).
 ```
 FFDD    - Marker (2B)
 0004    - Length (2B)
