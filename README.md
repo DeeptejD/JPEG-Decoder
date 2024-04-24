@@ -62,6 +62,26 @@ Lower Nibble - Table ID (0, 1, 2, 3)
 [followed by either 64B or 128B based on the lower nibble of table info] - Table Values
 ```
 
+### Start Of Frame Marker (SOF)
+- The SOF marker is followed by parameters that describe various aspects of the image, such as its dimensions, color space, and component information.
+```
+FFC0 -> FFCF (excludes C4, C8 and CC => 13 markers)
+
+FFC0    - Baseline JPEG Marker (we are covering this one)
+
+FFCX    - Marker (2B)
+XXXX    - Length (2B)
+XX      - Precision(value must be 8 ie. 0 to 255) (1B)
+XXXX    - Height (2B)
+XXXX    - Width (2B)
+XX      - Number Of Components/Channels(is either 1(grayscale jpeg) or 3(rgb)) (1B)
+
+for each component:
+XX      - Component ID (1B)
+XX      - sampling Factor (1B)
+XX      - Quantization Table ID(the one that is used on this component) (1B)
+```
+
 ### Define Restart Interval Marker (DRI)
 - The DC coefficient (which is essentially the first coefficient in an MCU) is dependent on the DC coefficient of the previous MCU (except the first MCU). What this essentially means is that, to calculate the actual MCU of say the second MCU, we add its value with the previous MCU's DC coefficient. 
 - DRI helps us define the interval of MCUs after which we reset the DC coefficient to zero.
