@@ -34,7 +34,7 @@ Understanding a JPEG encoder. It consists of 4 major steps:
 ### Start Of Image Marker (SOI)
 Every JPEG file starts with SOI marker.
 ```
-FFD8    - Marker (2B)
+FFD8    - SOI Marker (2B)
 ```
 
 ### Define Restart Interval Marker (DRI)
