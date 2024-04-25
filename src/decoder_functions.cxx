@@ -36,6 +36,7 @@ void readComment(std::ifstream &inFile, Header *const header);
 void readStartOfFrame(std::ifstream &inFile, Header *const header)
 {
     std::cout << "Reading SOF Marker\n";
+
     if (header->numComponents != 0)
     {
         std::cout << "ERROR: Multiple SOFs detected\n";
@@ -55,6 +56,7 @@ void readStartOfFrame(std::ifstream &inFile, Header *const header)
 
     header->height = (inFile.get() << 8) + inFile.get();
     header->width = (inFile.get() << 8) + inFile.get();
+
     if (header->height == 0 || header->width == 0)
     {
         std::cout << "ERROR: Invalid dimensions\n";
@@ -100,19 +102,21 @@ void readStartOfFrame(std::ifstream &inFile, Header *const header)
             return;
         }
 
-        ColorComponent *component = &header->colorComponents[componentID - 1];
+        ColorComponent *component = &header->colorComponents[componentID - 1]; // -1 because the component ID's are 1 indexed and the indices we need to read are zero indexed
+
         if (component->used)
         {
             std::cout << "ERROR: Duplicate color component ID\n";
             header->valid = false;
             return;
         }
+
         component->used = true;
 
         byte samplingFactor = inFile.get();
         // Sampling factor is also split into upper and lower nibble
-        component->horizontalSamplingFactor = samplingFactor >> 4;
-        component->verticalSamplingFactor = samplingFactor & 0x0F;
+        component->horizontalSamplingFactor = samplingFactor >> 4; // upper nibble
+        component->verticalSamplingFactor = samplingFactor & 0x0F; // lower nibble
         component->quantizationTableID = inFile.get();
 
         if (component->horizontalSamplingFactor != 1 || component->verticalSamplingFactor != 1)
@@ -130,6 +134,7 @@ void readStartOfFrame(std::ifstream &inFile, Header *const header)
         }
     }
 
+    // once we read all the color channels SOF shud ideally be over, but just to be sure
     if (length - 8 - (3 * header->numComponents) != 0)
     {
         std::cout << "ERROR: SOF invalid\n";
@@ -145,7 +150,7 @@ void printHeader(const Header *const header)
 
     // print the 4 quantization tables (how many exist)
     std::cout << "\nDQT\n---\n";
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++) // all 4 quantization tables
     {
         if (header->quantizationTables[i].set)
         {
@@ -242,10 +247,10 @@ void readAPPN(std::ifstream &inFile, Header *const header)
 {
     // const just makes sure the header does not point to anything else, we can still make changes to its contents
     std::cout << "Reading APPN Markers...\n";
-    uint length = (inFile.get() << 8) + inFile.get(); // this is in big endian
+    uint length = (inFile.get() << 8) + inFile.get(); // we are reading 2 bytes from the length part (remember - FFXX LLLL), left shifting by 8 cuz, firs read byte goes in the Sig pos (BIG ENDIAN)
 
     for (uint i = 0; i < length - 2; i++) // -2 cuz we read the first 2
-        inFile.get();
+        inFile.get();                     // we dont care about the APPN markers so we simply read them, this basically advances the position of the pointer
 }
 
 void readComment(std::ifstream &inFile, Header *const header)
@@ -262,7 +267,7 @@ void readComment(std::ifstream &inFile, Header *const header)
 void readQuantizationTable(std::ifstream &inFile, Header *const header)
 {
     std::cout << "Reading DQT Markers...\n";
-    int length = (inFile.get() << 8) + inFile.get();
+    int length = (inFile.get() << 8) + inFile.get(); // NOTE: here length is not uint because we want to know if it goes below 0 for the while loop below
     length -= 2;
 
     // length is int not uint coz it can go negative in case of an error
@@ -272,7 +277,7 @@ void readQuantizationTable(std::ifstream &inFile, Header *const header)
         length--;
 
         // table id is the lower nibble of tableInfo
-        byte tableID = tableInfo & 0x0F;
+        byte tableID = tableInfo & 0x0F; // 0x0F is 15 (15 bits)
 
         // jpeg permits max 4 quantization tables
         if (tableID > 3)
@@ -288,6 +293,7 @@ void readQuantizationTable(std::ifstream &inFile, Header *const header)
         //                           == 1 -> 8b qt table
         if (tableInfo >> 4 != 0)
         {
+            // we are readnig 2 bytes here beacause since tableinfo is 1, we are reading a 16B quantization table
             for (uint i = 0; i < 64; i++)
                 header->quantizationTables[tableID].table[zigZagMap[i]] = (inFile.get() << 8) + inFile.get();
             length -= 128; // 64 values * 16 bit
@@ -323,11 +329,11 @@ void readRestartInterval(std::ifstream &inFile, Header *const header)
     }
 }
 
-Header *readJPG(const std::string &filename) 
+Header *readJPG(const std::string &filename)
 {
     // open file in binary
     std::ifstream inFile = std::ifstream(filename, std::ios::in | std::ios::binary);
-    
+
     // error handling
     if (!inFile.is_open())
     {
@@ -365,6 +371,7 @@ Header *readJPG(const std::string &filename)
     // Read Markers
     while (header->valid) // we keep reading until we run out of markers or something else goes wrong
     {
+        // check if we've reached past the end of the file
         if (!inFile)
         {
             std::cout << "ERROR: File ended prematurely\n";
@@ -372,6 +379,7 @@ Header *readJPG(const std::string &filename)
             inFile.close();
             return header;
         }
+        // since we expect a marker at the beginning of each iteration of the loop
         if (last != 0xFF)
         {
             std::cout << "ERROR: Expected a marker\n";
@@ -538,7 +546,6 @@ Header *readJPG(const std::string &filename)
     }
 
     // validate header info before returning
-    // validate header info
     if (header->numComponents != 1 && header->numComponents != 3)
     {
         std ::cout << "Error - " << (uint)header->numComponents << " color components given (1 or 3 required)\n";
@@ -546,6 +553,7 @@ Header *readJPG(const std::string &filename)
         inFile.close();
         return header;
     }
+
     for (uint i = 0; i < header->numComponents; ++i)
     {
         if (header->quantizationTables[header->colorComponents[i].quantizationTableID].set == false)

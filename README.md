@@ -55,6 +55,12 @@ Understanding a JPEG encoder. It consists of 4 major steps:
 FFD8    - SOI Marker (2B)
 ```
 
+### End of Image Marker (EOI)
+ - Every JPEG file ends with the EOI marker
+```
+FFD9    - EOI Marker (2B)
+```
+
 ### Application Marker (APPN)
 - Contains application-specific data eg. data of the encoding software (like photoshop etc.)
 - These markers allow for extending the JPEG format to accommodate various types of metadata and application-specific data without affecting the image's visual representation.
@@ -76,29 +82,32 @@ FFDB    - Marker (2B)
 XXXX    - Length (2B)
 Table Info       (1B)
 Upper Nibble - 0/1 -> Tells if Quantization values are 8b or 16b values
-Lower Nibble - Table ID (0, 1, 2, 3) 
+Lower Nibble - Table ID (0, 1, 2, 3) [Luminance has a seperate quantization table than the chrominance channel so that's 2 (ID's 0 and 1), but this allows a max of 4]
 [followed by either 64B or 128B based on the lower nibble of table info] - Table Values
 ```
 
 ### Start Of Frame Marker (SOF)
 - The SOF marker is followed by parameters that describe various aspects of the image, such as its dimensions, color space, and component information.
 - Sampling Factor: Refers to the ratio by which the image is downsampled in the horizontal and vertical dimensions for each color component during the compression process. (using for color and brightness in YCrCb) 
+- There must always be a single SOF marker, and we must encounter it before the huffman bitstream
 ```
 FFC0 -> FFCF (excludes C4, C8 and CC => 13 markers)
 
 FFC0    - Baseline JPEG Marker (we are covering this one)
+[When an image is said to be baseline it means that it contains only one huffman coded bit stream and that one bit stream contains info about all the MCU's in the JPEG]
 
 FFCX    - Marker (2B)
 XXXX    - Length (2B)
-XX      - Precision(value must be 8 ie. 0 to 255) (1B)
+XX      - Precision [Tells u how many bits are used for the color channels and must always be 8 bit values ranging from 0 to 255] (1B)
 XXXX    - Height (2B)
 XXXX    - Width (2B)
-XX      - Number Of Components/Channels(is either 1(grayscale jpeg) or 3(rgb)) (1B)
+[Height and Width must be non zero]
+XX      - Number Of Components/Channels (is either 1 (grayscale jpeg) or 3(rgb)) (1B)
 
 for each component:
-XX      - Component ID (1B)
-XX      - sampling Factor (1B)
-XX      - Quantization Table ID(the one that is used on this component) (1B)
+XX      - Component ID (1B) [Must be either 1, 2 or 3]
+XX      - Sampling Factor (1B)
+XX      - Quantization Table ID (The one that is used on this component) (1B)
 ```
 
 ### Define Restart Interval Marker (DRI)

@@ -107,6 +107,7 @@ struct QuantizationTable
 
 struct ColorComponent
 {
+    
     byte horizontalSamplingFactor = 1;
     byte verticalSamplingFactor = 1;
     byte quantizationTableID = 0;
