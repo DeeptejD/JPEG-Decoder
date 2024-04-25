@@ -323,18 +323,21 @@ void readRestartInterval(std::ifstream &inFile, Header *const header)
     }
 }
 
-Header *readJPG(const std::string &filename)
+Header *readJPG(const std::string &filename) 
 {
     // open file in binary
     std::ifstream inFile = std::ifstream(filename, std::ios::in | std::ios::binary);
+    
+    // error handling
     if (!inFile.is_open())
     {
         std::cout << "ERROR: Error opening input file\n";
         return nullptr;
     }
 
-    // new wont throw error, will instead return nullptr
+    // std::nothrow returns a nullpointer if in case the allocation were to fail, avoids try-catch
     Header *header = new (std::nothrow) Header;
+
     if (header == nullptr)
     {
         std::cout << "ERROR: Memory error\n";
@@ -342,11 +345,13 @@ Header *readJPG(const std::string &filename)
         return nullptr;
     }
 
+    // READING THE FILE STARTS HERE
+
     // since markers are 2 bytes long we read 2 bytes at a time
     byte last = inFile.get();
     byte current = inFile.get();
 
-    // Checking if the first 2 bytes in the JPEG are valid
+    // Checking if the first 2 bytes in the JPEG are valid (remember how a marker looks -- FFXX)
     if (last != 0xFF || current != SOI)
     {
         header->valid = false;
@@ -358,7 +363,7 @@ Header *readJPG(const std::string &filename)
     current = inFile.get();
 
     // Read Markers
-    while (header->valid)
+    while (header->valid) // we keep reading until we run out of markers or something else goes wrong
     {
         if (!inFile)
         {

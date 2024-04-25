@@ -16,10 +16,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // once we make sure that a filename has been provided, we process every arg except the first one (first one is the code file)
     for (int i = 1; i < argc; i++)
     {
-        const std::string filename(argv[i]);
-        Header *header = readJPG(filename);
+        const std::string filename(argv[i]); // store the filename as a string
+        Header *header = readJPG(filename); // reads the filename and returns a header that is constructed from reading the file
 
         if (header == nullptr)
         {

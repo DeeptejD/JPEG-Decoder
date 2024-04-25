@@ -6,27 +6,45 @@
 - Run `g++ decoder.cxx`
 - Run `a.exe ./pics/cat.jpg`
 
-### Basic Overview of a JPEG encoder-decoder
+## Basic Overview of a JPEG encoder-decoder
 Understanding a JPEG encoder. It consists of 4 major steps:
-1. RGB -> YCbCr
+
+<details>
+<summary>1. RGB → YCbCr</summary>
+
 - YCbCr color space separates luminance (Y) from chrominance (Cb and Cr), allowing for more efficient compression. Human vision is more sensitive to changes in brightness (luminance) than to changes in color (chrominance). By subsampling the chrominance channels (Cb and Cr), JPEG encoders can reduce the data needed to represent the image while preserving visual quality.
+
+
 - The image is broken up into 8x8 blocks of pixels called MCUs (minimum coded units). Since we have 3 channels (Y, Cr, Cb), we will have 3 sets of MCUs. These MCUs can be treated as individual MCUs and further steps can be performed on them.
 
-2. Discrete Cosine Transform (DCT)
+</details>
+
+<details>
+<summary>2. Discrete Cosine Transform (DCT)</summary>
+
 - Converts image from spatial domain -> frequency domain
 - low-frequency images? -> when pixels are very similar to their neighbors ; high-frequency images? -> when pixels are very different from their neighbors
 - Human visual perception is less sensitive to changes in high-frequency information compared to low-frequency information
 - The DCT tends to concentrate most of the image energy in a small number of low-frequency coefficients, while high-frequency coefficients represent finer details. Since the low-frequency coefficients contain a significant portion of the image's energy, they are less aggressively quantized during compression to preserve important image features and overall structure.
+</details>
 
-3. Quantization
+<details>
+<summary>3. Quantization</summary>
+
 - Reduces the precision of the frequency coefficients obtained after the Discrete Cosine Transform (DCT). By dividing the DCT coefficients by values in a quantization matrix, many of these coefficients become smaller and can be approximated to zero.
 - Quantization is often designed to exploit properties of human visual perception. ie. high-frequency components -> larger quantization coefficients and lower will have smaller
 - This is irreversible. eg: 23 and 5 => 23/5 = 4 => 4 * 5 = 20 (we lost precision data)
 - These values decide how much your image is compressed.
+  
+</details>
 
-4. Huffman Coding
+<details>
+<summary>4. Huffman Coding</summary>
+
 - more frequent coeffs -> smaller code length ; less frequent coeffs -> larger code length
 - is stored in a zig-zag fashion because the lower triangle consists of the high-frequency components which are highly quantized and are often 0. These 0s can be grouped for efficient storage. 
+  
+</details>
 
 
 ## Markers
