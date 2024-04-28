@@ -143,12 +143,16 @@ Structure of the Table Info symbol (1B)
 
 
 ### Start of Scan Marker (SoS)
+- scan: a Huffman-coded bitstream
+- baseline JPEGs contain a single scan that contains every coefficient of every MCU.
 ```
 FFDA    - Marker (2B)
 XXXX    - Length (2B)
 XX      - Number of Color Components (1B)
+
+for each color-component:
 XX      - Component ID (1B)
-XX      - DC/AC Table ID (1B)
+XX      - (upper nibble: dc huffman table id; lower nibble: ac huffman table id used on this color component) Table ID (1B)
 
 XX      - Start of Selection (1B) [This value must be zero for Baseline JPEGs]
 XX      - End of Selection (1B) [This value must be 63 for Baseline JPEGs]
@@ -157,8 +161,6 @@ XX      - Successive Approximation (1B) [Relevant w.r.t. Progressive JPEGs, must
 ---
 This is followed by the Huffman Coded BitSteam
 ```
-
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### Bit Map (BMP) Header [For the bmp output]
 ```
