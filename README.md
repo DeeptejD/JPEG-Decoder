@@ -184,10 +184,17 @@ height         - image height (2B)
 24             - number of bits per pixel (2B) [8 (bits per color channel 0->255) * 3 (num of color components)]
 ```
 
-## Huffman Coding
-### How do we figure out huffman codes from frequency of huffman codes of a particular length given in the DHT marker?
-We start with the code ```0``` for codes of length 1 and at each step we do the following
-* Save current symbol (```0``` in the case of codes of length 1) and add 1 to it
-* For codes of length 2 we start with ```00``` and continue the same, adding a zero each time we consider a code of a greater length
+## Huffman Coding (Algorithm)
+- any valid code cant be the start of another valid code.
+- Huffman coding tree (binary tree) => more frequent symbols are closer to the root and less frequent are farther.
+
+### When we decode Huffman Codes for a JPEG we have: Symbols, Number of Codes of each length.
+Algorithm:
+1) Start with code candidate 0;
+2) For each possible code length:
+3) Append a 0 to the right of the code candidate;
+4) For number of codes of this length:
+4.1) Add current code candidate to list of codes and add 1 to the code candidate;
+5) End;
 
 
