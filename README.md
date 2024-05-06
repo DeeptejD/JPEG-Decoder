@@ -197,4 +197,10 @@ Algorithm:
 4.1) Add current code candidate to list of codes and add 1 to the code candidate;
 5) End;
 
+### Representation of -ve nos. in the huffman coded bitstream
+eg: 000 001 010 011 100 101 110 111
+-> only 1/2 of the them use first bit, other 1/2 are better represented as 2b nos.
+-> the 3b nos. that are now unused can be repurposed as -ve counter parts
+=> -7 -6 -5 -4 4 5 6 7 (respectively)
+
 
