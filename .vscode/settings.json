@@ -69,5 +69,6 @@
         "shared_mutex": "cpp",
         "thread": "cpp",
         "typeindex": "cpp"
-    }
+    },
+    "cph.general.saveLocation": ""
 }
