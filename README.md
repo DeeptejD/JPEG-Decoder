@@ -143,12 +143,16 @@ Structure of the Table Info symbol (1B)
 
 
 ### Start of Scan Marker (SoS)
+- scan: a Huffman-coded bitstream
+- baseline JPEGs contain a single scan that contains every coefficient of every MCU.
 ```
 FFDA    - Marker (2B)
 XXXX    - Length (2B)
 XX      - Number of Color Components (1B)
+
+for each color-component:
 XX      - Component ID (1B)
-XX      - DC/AC Table ID (1B)
+XX      - (upper nibble: dc huffman table id; lower nibble: ac huffman table id used on this color component) Table ID (1B)
 
 XX      - Start of Selection (1B) [This value must be zero for Baseline JPEGs]
 XX      - End of Selection (1B) [This value must be 63 for Baseline JPEGs]
@@ -157,8 +161,6 @@ XX      - Successive Approximation (1B) [Relevant w.r.t. Progressive JPEGs, must
 ---
 This is followed by the Huffman Coded BitSteam
 ```
-
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### Bit Map (BMP) Header [For the bmp output]
 ```
@@ -182,10 +184,23 @@ height         - image height (2B)
 24             - number of bits per pixel (2B) [8 (bits per color channel 0->255) * 3 (num of color components)]
 ```
 
-## Huffman Coding
-### How do we figure out huffman codes from frequency of huffman codes of a particular length given in the DHT marker?
-We start with the code ```0``` for codes of length 1 and at each step we do the following
-* Save current symbol (```0``` in the case of codes of length 1) and add 1 to it
-* For codes of length 2 we start with ```00``` and continue the same, adding a zero each time we consider a code of a greater length
+## Huffman Coding (Algorithm)
+- any valid code cant be the start of another valid code.
+- Huffman coding tree (binary tree) => more frequent symbols are closer to the root and less frequent are farther.
+
+### When we decode Huffman Codes for a JPEG we have: Symbols, Number of Codes of each length.
+Algorithm:
+1) Start with code candidate 0;
+2) For each possible code length:
+3) Append a 0 to the right of the code candidate;
+4) For number of codes of this length:
+4.1) Add current code candidate to list of codes and add 1 to the code candidate;
+5) End;
+
+### Representation of -ve nos. in the huffman coded bitstream
+eg: 000 001 010 011 100 101 110 111
+- only 1/2 of the them use first bit, other 1/2 are better represented as 2b nos.
+- the 3b nos. that are now unused can be repurposed as -ve counter parts
+- ie. -7 -6 -5 -4 4 5 6 7 (respectively)
 
 

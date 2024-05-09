@@ -654,7 +654,7 @@ void readStartOfScan(std::ifstream &inFile, Header *const header)
     }
     uint length = (inFile.get() << 8) + inFile.get();
 
-    // Setting all the used flags back to false
+    // Setting all the used flags back to false coz we want to use them below
     for (uint i = 0; i < header->numComponents; i++)
     {
         header->colorComponents[i].used = false;
