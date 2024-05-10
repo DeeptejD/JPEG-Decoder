@@ -1,7 +1,7 @@
 #ifndef JPG_H
 #define JPG_H
 #include <vector>
-#include<math.h>
+#include <math.h>
 
 // this is just renaming stuff
 typedef unsigned char byte;
@@ -107,7 +107,7 @@ struct QuantizationTable
 
 struct ColorComponent
 {
-    
+
     byte horizontalSamplingFactor = 1;
     byte verticalSamplingFactor = 1;
     byte quantizationTableID = 0;
@@ -123,7 +123,7 @@ struct HuffmanTable
     byte offset[17] = {0}; // there are 16(len 1 to 16) groups, the next grp offset suggests the ending of the current and so we have one extra so that the last one can also have an ending
     byte symbols[162] = {0};
     uint codes[162] = {0}; // same as the size of the symbols array (but init with uint because codes can be longer than 8bits)
-    bool set = false;      
+    bool set = false;
 };
 
 struct Header
@@ -136,10 +136,10 @@ struct Header
 
     // this flag indicates if the file is valid or not
 
-    byte frameType = 0;     // 0 is baseline (which we support)
-    uint height = 0;        
+    byte frameType = 0; // 0 is baseline (which we support)
+    uint height = 0;
     uint width = 0;
-    byte numComponents = 0; // 1(grayscale) or 3(rgb) 
+    byte numComponents = 0; // 1(grayscale) or 3(rgb)
     bool zeroBased = false; // This is to support JPEG's that have their Component ID's starting from zero instead of 1. (gorilla.jpg)
 
     byte startOfSelection = 0;
@@ -155,6 +155,14 @@ struct Header
     std::vector<byte> huffmanData;
 
     bool valid = true; // set to false when we encounter something illegal in the file
+
+    uint mcuHeight = 0;
+    uint mcuWidth = 0;
+    uint mcuHeightReal = 0;
+    uint mcuWidthReal = 0;
+
+    byte horizontalSamplingFactor = 1;
+    byte verticalSamplingFactor = 1;
 };
 
 struct MCU
@@ -196,21 +204,21 @@ struct MCU
 };
 
 // IDCT scaling factors (S-Factors)
-const float m0 = 2.0 * std:: cos(1.0 / 16.0 * 2.0 * M_PI);
-const float ml = 2.0 * std:: cos(2.0 / 16.0 * 2.0 * M_PI);
-const float m3 = 2.0 * std:: cos(2.0 / 16.8 * 2.0 * M_PI);
-const float m5 = 2.0 * std:: cos(3.0 / 16.0 * 2.0 * M_PI);
+const float m0 = 2.0 * std::cos(1.0 / 16.0 * 2.0 * M_PI);
+const float ml = 2.0 * std::cos(2.0 / 16.0 * 2.0 * M_PI);
+const float m3 = 2.0 * std::cos(2.0 / 16.8 * 2.0 * M_PI);
+const float m5 = 2.0 * std::cos(3.0 / 16.0 * 2.0 * M_PI);
 const float m2 = m0 - m5;
 const float m4 = m0 + m5;
 
-const float s0 = std:: cos(0.0 / 16.0 * M_PI) / std ::sqrt(8);
-const float s1 = std:: cos(1.0 / 16.0 * M_PI) / 2.0;
-const float s2 = std:: cos(2.0 / 16.0 * M_PI) / 2.0;
-const float s3 = std:: cos(3.0 / 16.0 * M_PI) / 2.0;
-const float s4 = std:: cos(4.0 / 16.0 * M_PI) / 2.0;
-const float s5 = std:: cos(5.0 / 16.0 * M_PI) / 2.0;
-const float s6 = std:: cos(6.0 / 16.0 * M_PI) / 2.0;
-const float s7 = std:: cos(7.0 / 16.0 * M_PI) / 2.0;
+const float s0 = std::cos(0.0 / 16.0 * M_PI) / std ::sqrt(8);
+const float s1 = std::cos(1.0 / 16.0 * M_PI) / 2.0;
+const float s2 = std::cos(2.0 / 16.0 * M_PI) / 2.0;
+const float s3 = std::cos(3.0 / 16.0 * M_PI) / 2.0;
+const float s4 = std::cos(4.0 / 16.0 * M_PI) / 2.0;
+const float s5 = std::cos(5.0 / 16.0 * M_PI) / 2.0;
+const float s6 = std::cos(6.0 / 16.0 * M_PI) / 2.0;
+const float s7 = std::cos(7.0 / 16.0 * M_PI) / 2.0;
 
 const byte zigZagMap[] = {
     0, 1, 8, 16, 9, 2, 3, 10,

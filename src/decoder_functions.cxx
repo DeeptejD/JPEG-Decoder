@@ -63,6 +63,10 @@ void readStartOfFrame(std::ifstream &inFile, Header *const header)
         header->valid = false;
         return;
     }
+    header->mcuHeight = (header->height + 7) / 8;
+    header->mcuWidth = (header->width + 7) / 8;
+    header->mcuHeightReal = header->mcuHeight;
+    header->mcuWidthReal = header->mcuWidth;
 
     header->numComponents = inFile.get();
     if (header->numComponents == 4)
@@ -119,11 +123,36 @@ void readStartOfFrame(std::ifstream &inFile, Header *const header)
         component->verticalSamplingFactor = samplingFactor & 0x0F; // lower nibble
         component->quantizationTableID = inFile.get();
 
-        if (component->horizontalSamplingFactor != 1 || component->verticalSamplingFactor != 1)
+        if (componentID == 1)
         {
-            std::cout << "ERROR: Sampling factors not supported\n";
-            header->valid = false;
-            return;
+            // no subsamp: when horiz and vert are 1, horiz subsamp when horiz is 2, vert when ver is 2 and both when both are 2
+
+            // luminance channel
+            if ((component->horizontalSamplingFactor != 1 && component->horizontalSamplingFactor != 2) || (component->verticalSamplingFactor != 1 && component->verticalSamplingFactor != 2))
+            {
+                std::cout << "ERROR: Sampling factors not supported\n";
+                header->valid = false;
+                return;
+            }
+            if (component->horizontalSamplingFactor == 2 && header->mcuWidth % 2 == 1)
+            {
+                header->mcuWidthReal += 1;
+            }
+            if (component->verticalSamplingFactor == 2 && header->mcuHeight % 2 == 1)
+            {
+                header->mcuHeightReal += 1;
+            }
+            header->horizontalSamplingFactor = component->horizontalSamplingFactor;
+            header->verticalSamplingFactor = component->verticalSamplingFactor;
+        }
+        else
+        {
+            if (component->horizontalSamplingFactor != 1 || component->verticalSamplingFactor != 1)
+            {
+                std::cout << "ERROR: Sampling factors not supported\n";
+                header->valid = false;
+                return;
+            }
         }
 
         if (component->quantizationTableID > 3)

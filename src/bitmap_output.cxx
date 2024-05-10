@@ -26,8 +26,8 @@ void writeBMP(const Header *const header, const MCU *const mcus, const std::stri
     }
 
     // ceil(a/b) = (a + b - 1) / b
-    const uint mcuHeight = (header->height + 7) / 8;
-    const uint mcuWidth = (header->width + 7) / 8;
+    // const uint mcuHeight = (header->height + 7) / 8;
+    // const uint mcuWidth = (header->width + 7) / 8;
     const uint paddingSize = header->width % 4;
     const uint size = 14 + 12 + header->height * header->width * 3 + paddingSize * header->height;
 
@@ -54,7 +54,7 @@ void writeBMP(const Header *const header, const MCU *const mcus, const std::stri
         {
             const uint mcuColumn = x / 8;
             const uint pixelColumn = x % 8;
-            const uint mcuIndex = mcuRow * mcuWidth + mcuColumn;
+            const uint mcuIndex = mcuRow * header->mcuWidthReal + mcuColumn;
 
             const uint pixelIndex = pixelRow * 8 + pixelColumn;
             outFile.put(mcus[mcuIndex].b[pixelIndex]);

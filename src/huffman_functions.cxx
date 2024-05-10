@@ -218,9 +218,8 @@ bool decodeMCUComponent(BitReader &b, int *const component, int &previousDC, con
 
 MCU *decodeHuffmanData(Header *const header)
 {
-    const uint mcuHeight = (header->height + 7) / 8;
-    const uint mcuWidth = (header->width + 7) / 8;
-    MCU *mcus = new (std::nothrow) MCU[mcuHeight * mcuWidth];
+    // the real image dimensions will be equal to the actual image dimensions if the image is not using any subsampliong anyways so we arent breaking any compatibility
+    MCU *mcus = new (std::nothrow) MCU[header->mcuHeightReal * header->mcuWidthReal];
 
     if (mcus == nullptr)
     {
@@ -243,31 +242,43 @@ MCU *decodeHuffmanData(Header *const header)
     BitReader b(header->huffmanData);
 
     int previousDCs[3] = {0};
+    uint restartInterval = header->restartInterval * header->horizontalSamplingFactor * header->verticalSamplingFactor;
 
-    for (uint i = 0; i < mcuHeight * mcuWidth; i++) // loops for every mcu
+    // this whole for loop decodes an entire MCU
+    for (uint y = 0; y < header->mcuHeight; y += header->verticalSamplingFactor)
     {
-        // at the strt of an MCU
-        if (header->restartInterval != 0 && i % header->restartInterval == 0) // its time to restart
+        for (uint x = 0; x < header->mcuWidth; x += header->horizontalSamplingFactor)
         {
-            // at the end of the restart interval we have to reset the previous DCs
-            previousDCs[0] = 0;
-            previousDCs[1] = 0;
-            previousDCs[2] = 0;
-
-            b.align();
-        }
-        // fill it with the coefficients from the huffman data
-        for (uint j = 0; j < header->numComponents; j++) // run a function for all the component in that MCU
-        {
-            // we call a function whose responsibility is to process a single channel of a single MCU
-            if (!decodeMCUComponent(b,
-                                    mcus[i][j],
-                                    previousDCs[j],
-                                    header->huffmanDCTables[header->colorComponents[j].HuffmanDCTableID],
-                                    header->huffmanACTables[header->colorComponents[j].HuffmanACTableID])) // we only realistically want to pass the current component
+            // at the strt of an MCU
+            if (restartInterval != 0 && (y * header->mcuWidthReal + x) % restartInterval == 0) // its time to restart
             {
-                delete[] mcus;
-                return nullptr;
+                // at the end of the restart interval we have to reset the previous DCs
+                previousDCs[0] = 0;
+                previousDCs[1] = 0;
+                previousDCs[2] = 0;
+
+                b.align();
+            }
+            // fill it with the coefficients from the huffman data
+            for (uint i = 0; i < header->numComponents; i++) // run a function for all the component in that MCU
+            {
+                for (uint v = 0; v < header->colorComponents[i].verticalSamplingFactor; ++v)
+                {
+                    for (uint h = 0; h < header->colorComponents[i].horizontalSamplingFactor; ++h)
+                    {
+
+                        // we call a function whose responsibility is to process a single channel of a single MCU
+                        if (!decodeMCUComponent(b,
+                                                mcus[(y + v) * header->mcuWidthReal + (x + h)][i],
+                                                previousDCs[i],
+                                                header->huffmanDCTables[header->colorComponents[i].HuffmanDCTableID],
+                                                header->huffmanACTables[header->colorComponents[i].HuffmanACTableID])) // we only realistically want to pass the current component
+                        {
+                            delete[] mcus;
+                            return nullptr;
+                        }
+                    }
+                }
             }
         }
     }

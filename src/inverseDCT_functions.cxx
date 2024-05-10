@@ -152,10 +152,20 @@ void inverseDCTComponent(int *const component)
 
 void inverseDCT(const Header *const header, MCU *const mcus)
 {
-    const uint mcuHeight = (header->height + 7) / 8;
-    const uint mcuWidth = (header->width + 7) / 8;
-
-    for (uint i = 0; i < mcuHeight * mcuWidth; i++)
-        for (uint j = 0; j < header->numComponents; j++)
-            inverseDCTComponent(mcus[i][j]);
+    for (uint y = 0; y < header->mcuHeight; y += header->verticalSamplingFactor)
+    {
+        for (uint x = 0; x < header->mcuWidth; x += header->horizontalSamplingFactor)
+        {
+            for (uint i = 0; i < header->numComponents; ++i)
+            {
+                for (uint v = 0; v < header->colorComponents[i].verticalSamplingFactor; ++v)
+                {
+                    for (uint h = 0; h < header->colorComponents[i].horizontalSamplingFactor; ++h)
+                    {
+                        inverseDCTComponent(mcus[(y + v) * header->mcuWidthReal + (x + h)][i]);
+                    }
+                }
+            }
+        }
+    }
 }
