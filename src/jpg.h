@@ -1,10 +1,7 @@
 #ifndef JPG_H
 #define JPG_H
-<<<<<<< HEAD
 #include <vector>
 #include <math.h>
-=======
->>>>>>> e22b725b8d7a946eef95cbf4dbbe72d29da0a49f
 
 // this is just renaming stuff
 typedef unsigned char byte;
@@ -98,6 +95,12 @@ const byte TEM = 0x01;
 
 struct QuantizationTable
 {
+    // made a 1D array as single iterator can be used as well as 2 indices
+    // use nested:
+    // for(i: 1 -> 8)
+    //     for(j: 1 -> 8)
+    //          table[y * 8 + x] to access table[x][y]
+
     uint table[64] = {0}; // this is a 1D array instead of 2D because its more simpler
     bool set = false;     // whenw we populate a quant table we set this to true
 };
@@ -108,9 +111,12 @@ struct ColorComponent
     byte horizontalSamplingFactor = 1;
     byte verticalSamplingFactor = 1;
     byte quantizationTableID = 0;
+
+    byte HuffmanDCTableID = 0;
+    byte HuffmanACTableID = 0;
+
     bool used = false; // keeps a check whether this color component is used in the img or not
 };
-<<<<<<< HEAD
 
 struct HuffmanTable
 {
@@ -128,17 +134,11 @@ struct Header
     HuffmanTable huffmanDCTables[4];
     HuffmanTable huffmanACTables[4];
 
-=======
-struct Header
-{
-    QuantizationTable quantizationTables[4]; // we will mostly use the first 2
->>>>>>> e22b725b8d7a946eef95cbf4dbbe72d29da0a49f
     // this flag indicates if the file is valid or not
 
     byte frameType = 0; // 0 is baseline (which we support)
     uint height = 0;
     uint width = 0;
-<<<<<<< HEAD
     byte numComponents = 0; // 1(grayscale) or 3(rgb)
     bool zeroBased = false; // This is to support JPEG's that have their Component ID's starting from zero instead of 1. (gorilla.jpg)
 
@@ -148,11 +148,11 @@ struct Header
     byte successiveApproximationLow = 0;
 
     uint restartInterval = 0; // this means never restart (or reset the value of DC coefficent to zero) Context: DRI Marker
-=======
-    byte numComponents = 0;
->>>>>>> e22b725b8d7a946eef95cbf4dbbe72d29da0a49f
 
     ColorComponent colorComponents[3];
+
+    // stores the huffman data
+    std::vector<byte> huffmanData;
 
     bool valid = true; // set to false when we encounter something illegal in the file
 
@@ -165,7 +165,6 @@ struct Header
     byte verticalSamplingFactor = 1;
 };
 
-<<<<<<< HEAD
 struct MCU
 {
     // why use union? (to give same addr. in memory different names)
@@ -221,8 +220,6 @@ const float s5 = std::cos(5.0 / 16.0 * M_PI) / 2.0;
 const float s6 = std::cos(6.0 / 16.0 * M_PI) / 2.0;
 const float s7 = std::cos(7.0 / 16.0 * M_PI) / 2.0;
 
-=======
->>>>>>> e22b725b8d7a946eef95cbf4dbbe72d29da0a49f
 const byte zigZagMap[] = {
     0, 1, 8, 16, 9, 2, 3, 10,
     17, 24, 32, 25, 18, 11, 4, 5,
