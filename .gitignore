@@ -1,4 +1,3 @@
 /tests
-src/a.exe
-src/output
 */**/*.exe
+/src/output
