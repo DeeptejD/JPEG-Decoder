@@ -1,10 +1,13 @@
 # JPEG - Decoder
 
+## Prerequisites
+Download the folder containing all the test images: [Click Here](https://drive.google.com/drive/folders/1Hgl14XJhiSoun9Jw7s-ylbCbafp92Zli?usp=sharing)
+
 ## How to run the program
 
 - Navigate to the `/src` directory
 - Run `g++ decoder.cxx`
-- Run `a.exe ./pics/cat.jpg`
+- Run `a.exe ../tests/*.jpg` (Please modify the path accorddint to where you place the tests folder)
 
 ## Basic Overview of a JPEG encoder-decoder
 Understanding a JPEG encoder. It consists of 4 major steps:
